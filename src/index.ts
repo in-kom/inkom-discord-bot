@@ -1,34 +1,20 @@
-import { Client } from "discord.js";
-import { inkomClientOptions } from "config/clientOptions";
-import express from "express";
-import { readFileSync } from "fs";
-import path from "path";
-
+import { Client, Collection } from "discord.js";
+import { inkomClientOptions } from "./config/clientOptions.js";
+import { ExtendedClient } from "types/client.js";
+import mongoose from "mongoose";
 import * as dotenv from "dotenv";
+import { initializeBotComponents } from "handlers/init.js";
 dotenv.config();
 
-const app = express();
+const bot = new Client(inkomClientOptions) as ExtendedClient;
+bot.commands = new Collection();
 
-const bot = new Client(inkomClientOptions);
+mongoose.set("strictQuery", false);
+mongoose
+  .connect(process.env.MONGODB_URI, { family: 4 })
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((err) => console.log("Failed to connect MongoDB: ", err));
 
-bot.login(process.env.DISCORD_TOKEN).then(() => {
-  console.log("Discord bot online");
-});
+initializeBotComponents(bot);
 
-app.get("/", (req, res) => {
-  try {
-    const htmlFile = readFileSync(
-      path.join(process.cwd(), "index.html"),
-      "utf8"
-    );
-    res.setHeader("Content-Type", "text/html");
-    res.send(htmlFile);
-  } catch (error) {
-    console.error("Error serving index.html:", error);
-    res.status(500).send("Error loading page");
-  }
-});
-
-app.listen(3000);
-
-console.log("Administration panel running on http://localhost:3000");
+bot.login(process.env.DISCORD_TOKEN);
