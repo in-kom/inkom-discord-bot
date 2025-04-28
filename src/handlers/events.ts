@@ -25,9 +25,7 @@ export async function loadEvents(client: ExtendedClient) {
         console.error(`Event module at ${filePath} has no default export.`);
         continue;
       }
-      
-      console.log(`Loading event: ${event.name}, once: ${!!event.once}`);
-      
+
       if (event.once) {
         client.once(event.name, (...args) => event.execute(...args));
       } else {

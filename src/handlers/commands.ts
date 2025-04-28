@@ -1,11 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "url";
+import { ExtendedClient } from "../types/client.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export async function loadCommands(client) {
+export async function loadCommands(client: ExtendedClient) {
   const foldersPath = path.join(__dirname, "..", "commands");
   const commandFolders = fs.readdirSync(foldersPath);
 
@@ -25,7 +26,6 @@ export async function loadCommands(client) {
         // Set a new item in the Collection with the key as the command name and the value as the exported module
         if (command.data && command.data.name) {
           client.commands.set(command.data.name, command);
-          console.log(`Loaded command to client: ${command.data.name}`);
         } else {
           console.log(
             `[WARNING] The command at ${filePath} is missing a required "data" or "data.name" property.`
